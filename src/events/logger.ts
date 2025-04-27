@@ -55,7 +55,7 @@ async function getReplykeClientForGuild(guildId: string) {
 
 export default (client: Client): void => {
   /* ------------------------------------------------------------ */
-  /* 🧵 THREAD CREATED IN A FORUM CHANNEL                          */
+  /* 🧵 THREAD CREATED IN A FORUM CHANNEL                         */
   /* ------------------------------------------------------------ */
   client.on(Events.ThreadCreate, async (thread: ThreadChannel) => {
     if (thread.parent?.type !== ChannelType.GuildForum) return;
