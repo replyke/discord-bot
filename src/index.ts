@@ -22,7 +22,7 @@ const client = new Client({
 loggerHandler(client);
 
 client.once("ready", () => {
-  console.log(`✅ Logged in as ${client.user?.tag}`);
+  console.log(`Logged in as ${client.user?.tag}`);
 });
 
 client.login(process.env.DISCORD_TOKEN);
