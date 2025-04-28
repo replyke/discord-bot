@@ -66,12 +66,25 @@ export default (client: Client): void => {
       return;
     }
 
+    async function fetchStarterWithRetry(thread: ThreadChannel) {
+      for (let i = 0; i < 5; i++) {
+        try {
+          const msg = await thread.fetchStarterMessage();
+          if (msg) return msg;
+        } catch {
+          // not ready yet
+        }
+        await new Promise((r) => setTimeout(r, 500));
+      }
+      return null;
+    }
+
     /* ── fetch starter‑message so we can capture its author, text,
             attachments, etc.  (May throw if the thread was created
             without a starter message – so wrap in try/catch.) ── */
     let starterMsg: Message | null = null;
     try {
-      starterMsg = await thread.fetchStarterMessage();
+      starterMsg = await fetchStarterWithRetry(thread);
     } catch (_) {
       /* no starter message (rare) */
     }
