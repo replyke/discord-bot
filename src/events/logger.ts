@@ -75,8 +75,6 @@ export default (client: Client): void => {
     } catch (_) {
       /* no starter message (rare) */
     }
-    console.log(starterMsg)
-
     const authorDiscord =
       starterMsg?.author ??
       (thread.ownerId ? await thread.client.users.fetch(thread.ownerId) : null);
