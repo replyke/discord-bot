@@ -108,7 +108,7 @@ export default (client: Client): void => {
 
       if (replykeUser) {
         await replykeClient.entities.createEntity({
-          resourceId: `discord_channel_${thread.parent.id}`,
+          sourceId: `discord_channel_${thread.parent.id}`,
           foreignId: thread.id,
           userId: replykeUser.id,
           title: thread.name,
