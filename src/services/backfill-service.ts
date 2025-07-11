@@ -1,6 +1,5 @@
 // services/backfillService.ts
 import Bull from "bull";
-import PQueue from "p-queue";
 import { Client, ChannelType, ThreadChannel, MessageType } from "discord.js";
 import { ReplykeClient } from "@replyke/node";
 import { getReplykeClientForGuild } from "../events/logger";
@@ -49,6 +48,7 @@ export function initBackfillProcessor(discordClient: Client) {
     let done = 0;
 
     // throttle one thread per second
+    const { default: PQueue } = await import("p-queue");
     const throttle = new PQueue({ interval: 1000, intervalCap: 1 });
 
     for (const thread of allThreads) {
