@@ -3,9 +3,6 @@
   "version": "0.0.1",
   "description": "Convert content from selected channels on your Discord server into discoverable web pages",
   "main": "src/index.js",
-  "module": "commonjs",
-  "target": "es2020",
-  "outDir": "dist",
   "scripts": {
     "dev": "ts-node-dev --respawn --clear src/index.ts",
     "build": "tsc",

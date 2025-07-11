@@ -5,10 +5,11 @@ import express from "express";
 import cors from "cors";
 import { Client, GatewayIntentBits, Partials } from "discord.js";
 
-// import router from "./router";
 import loggerHandler from "./events/logger";
 import logRequest from "./middleware/logRequest";
 import corsOptions from "./middleware/cors-options";
+import router from "./router";
+import { initBackfillProcessor } from "./services/backfill-service";
 
 // --- HTTP Server Setup ---
 const app = express();
@@ -18,7 +19,7 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
-// app.use("/api", router);
+app.use("/api", router);
 
 const HTTP_PORT = parseInt(process.env.PORT || "3000", 10);
 app.listen(HTTP_PORT, () => {
@@ -44,7 +45,7 @@ const client = new Client({
 // attach existing event handlers (e.g. thread/message listeners)
 loggerHandler(client);
 
-// initBackfillProcessor(client);
+initBackfillProcessor(client);
 
 client.once("ready", () => {
   console.log(`Discord bot logged in as ${client.user?.tag}`);
