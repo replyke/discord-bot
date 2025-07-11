@@ -10,24 +10,63 @@ import { getReplykeClientForGuild } from "../events/logger";
 export interface BackfillJobData {
   guildId: string;
   forumChannelId: string;
-  /** populated if the job hit a fatal error */
   error?: string;
 }
 
-/**
- * Bull queue instance for backfilling forum channels
- */
-export const backfillQueue = new Bull<BackfillJobData>(
+// producer: fail fast if Redis is down
+export const backfillProducer = new Bull<BackfillJobData>(
   "backfill-forum",
-  process.env.REDIS_URL!
+  process.env.REDIS_URL!,
+  {
+    redis: {
+      maxRetriesPerRequest: 1, // only retry once
+    },
+  }
 );
+
+// worker: retry forever so jobs get picked up as soon as Redis recovers
+export const backfillWorker = new Bull<BackfillJobData>(
+  "backfill-forum",
+  process.env.REDIS_URL!,
+  {
+    redis: {
+      maxRetriesPerRequest: null, // unlimited retries
+    },
+  }
+);
+
+for (const queue of [backfillProducer, backfillWorker]) {
+  queue.on("error", (err) => {
+    console.error(`[${queue.name}] Redis/Queue error:`, err);
+  });
+
+  queue.on("failed", (job, err) => {
+    console.error(
+      `[${queue.name}] Job ${job.id} failed (state=${
+        job.opts.repeat ? "repeated" : "one-off"
+      }):`,
+      err
+    );
+  });
+
+  queue.on("completed", (job) => {
+    console.log(`[${queue.name}] Job ${job.id} completed`);
+  });
+
+  queue.on("stalled", (job) => {
+    console.warn(`[${queue.name}] Job ${job.id} stalled, will retry`);
+  });
+}
 
 /**
  * Initializes the processor: must be called once with your Discord client
  */
 export function initBackfillProcessor(discordClient: Client) {
-  backfillQueue.process(async (job) => {
+  backfillWorker.process(async (job) => {
     try {
+
+      console.log(`Job ${job.id}: waiting for Discord ready…`);
+
       // ensure the Discord client is ready
       if (!discordClient.isReady()) {
         await new Promise<void>((resolve) =>
@@ -46,9 +85,15 @@ export function initBackfillProcessor(discordClient: Client) {
       if (!forum || forum.type !== ChannelType.GuildForum) {
         throw new Error(`Channel ${forumChannelId} is not a GuildForum`);
       }
+      console.log(`Job ${job.id}: fetched forum:`, forum?.id, forum?.type);
+
 
       const active = await forum.threads.fetchActive();
+      console.log(`Job ${job.id}: ${active.threads.size} active threads`);
+
       const archived = await forum.threads.fetchArchived({ type: "public" });
+      console.log(`Job ${job.id}: ${archived.threads.size} archived threads`);
+
       const allThreads = [
         ...active.threads.values(),
         ...archived.threads.values(),
@@ -63,11 +108,14 @@ export function initBackfillProcessor(discordClient: Client) {
 
       for (const thread of allThreads) {
         throttle.add(async () => {
+          console.log(`Job ${job.id}: processing thread ${thread.id}`);
+
           try {
             await processThread(thread, replykeClient, discordClient);
           } catch (err) {
             console.error(`Error processing ${thread.id}:`, err);
           }
+          console.log(`Job ${job.id}: finished thread ${thread.id}`);
           done++;
           job.progress(Math.floor((done / total) * 100));
         });

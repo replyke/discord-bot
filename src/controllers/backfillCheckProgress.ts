@@ -1,8 +1,8 @@
 import { Request as ExReq, Response as ExRes } from "express";
-import { BackfillJobData, backfillQueue } from "../services/backfill-service";
+import { BackfillJobData, backfillProducer } from "../services/backfill-service";
 
 export default async (req: ExReq, res: ExRes) => {
-  const job = await backfillQueue.getJob(req.params.jobId);
+  const job = await backfillProducer.getJob(req.params.jobId);
   if (!job) {
     res.status(404).json({ error: "Job not found" });
     return;

@@ -1,5 +1,5 @@
 import { Request as ExReq, Response as ExRes } from "express";
-import { backfillQueue } from "../services/backfill-service";
+import { backfillProducer } from "../services/backfill-service";
 
 export default async (req: ExReq, res: ExRes) => {
   const { guildId, forumChannelId } = req.body;
@@ -9,7 +9,7 @@ export default async (req: ExReq, res: ExRes) => {
   }
 
   try {
-    const job = await backfillQueue.add({ guildId, forumChannelId });
+    const job = await backfillProducer.add({ guildId, forumChannelId });
     return res.json({ jobId: job.id });
   } catch (err) {
     console.error("Failed to enqueue backfill job:", err);
