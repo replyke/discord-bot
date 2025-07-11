@@ -1,19 +1,6 @@
 import { ReplykeClient } from "@replyke/node";
 import axios from "axios";
-import {
-  Client,
-  Events,
-  ChannelType,
-  MessageType,
-  ThreadChannel,
-  Message,
-  MessageReaction,
-  User,
-  PartialUser,
-  PartialMessageReaction,
-  PartialMessage,
-} from "discord.js";
-import handleError from "../utils/handle-error";
+import { Client, Events } from "discord.js";
 import threadCreated from "./thread-created";
 import threadUpdated from "./thread-updated";
 import threadDeleted from "./thread-deleted";
@@ -21,7 +8,7 @@ import messageCreated from "./message-created";
 import messageUpdated from "./message-updated";
 import messageDeleted from "./message-deleted";
 import messageReactionAdded from "./message-reaction-added";
-import messageReactionRemvoed from "./message-reaction-remvoed";
+import messageReactionRemoved from "./message-reaction-removed";
 
 // Placeholder for actual API client
 const clientsMap = new Map<string, ReplykeClient>();
@@ -103,5 +90,5 @@ export default (client: Client): void => {
   /* ------------------------------------------------------------ */
   /* 👍 REACTION REMOVED FROM A MESSAGE INSIDE A FORUM THREAD          */
   /* ------------------------------------------------------------ */
-  client.on(Events.MessageReactionRemove, messageReactionRemvoed);
+  client.on(Events.MessageReactionRemove, messageReactionRemoved);
 };

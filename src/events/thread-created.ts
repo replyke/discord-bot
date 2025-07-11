@@ -50,13 +50,15 @@ export default async (thread: ThreadChannel) => {
   }
 
   try {
-    const { user: replykeUser } =
-      await replykeClient.users.fetchUserByForeignId({
-        foreignId: authorDiscord.id,
-        username: authorDiscord.username,
-        avatar: authorDiscord.displayAvatarURL({ size: 128 }),
-        metadata: { displayName: authorDiscord.globalName },
-      });
+    const user = await replykeClient.users.fetchUserByForeignId({
+      foreignId: authorDiscord.id,
+      username: authorDiscord.username,
+      avatar: authorDiscord.displayAvatarURL({ size: 128 }),
+      metadata: { displayName: authorDiscord.globalName },
+      createIfNotFound: true,
+    });
+
+    let replykeUser = user;
 
     console.log({ replykeUser });
 

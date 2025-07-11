@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@replyke/node':
-        specifier: 5.0.3
-        version: 5.0.3
+        specifier: 5.0.4
+        version: 5.0.4
       axios:
         specifier: ^1.8.4
         version: 1.10.0
@@ -78,8 +78,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
-  '@replyke/node@5.0.3':
-    resolution: {integrity: sha512-r3bFIM7X6X+D8mUDg/GCSVeqIYB6sPp4aXzdhv4Ycx+fFJcaLvwVkOxw1OdPY0bu7TW9lnGeCbJC8Zhd7S5pUQ==}
+  '@replyke/node@5.0.4':
+    resolution: {integrity: sha512-rb3pwbU0yxZd3LSc1R1bVWaftM2LEMhphx+nkmHI4u52hpDahybDnigC+tBjky4sf2NBlyROYoXIm2jnDHQIYg==}
 
   '@sapphire/async-queue@1.5.5':
     resolution: {integrity: sha512-cvGzxbba6sav2zZkH8GPf2oGk9yYoD5qrNWdu9fRehifgnFZJMV+nuy2nON2roRO4yQQ+v7MK/Pktl/HgfsUXg==}
@@ -541,7 +541,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.4
 
-  '@replyke/node@5.0.3':
+  '@replyke/node@5.0.4':
     dependencies:
       axios: 1.10.0
     transitivePeerDependencies:
