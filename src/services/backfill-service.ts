@@ -3,6 +3,7 @@ import Bull from "bull";
 import { Client, ChannelType, ThreadChannel, MessageType } from "discord.js";
 import { ReplykeClient } from "@replyke/node";
 import { getReplykeClientForGuild } from "../events/logger";
+import PQueue from "p-queue";
 
 /**
  * Payload for a backfill job
@@ -19,10 +20,6 @@ export const backfillProducer = new Bull<BackfillJobData>(
   process.env.REDIS_PUBLIC_URL!,
   {
     redis: {
-      // host: process.env.REDISHOST,
-      // port: Number(process.env.REDISPORT),
-      // password: process.env.REDISPASSWORD,
-      // username: process.env.REDISUSER, // optional
       maxRetriesPerRequest: 1,
     },
   }
@@ -34,10 +31,6 @@ export const backfillWorker = new Bull<BackfillJobData>(
   process.env.REDIS_PUBLIC_URL!,
   {
     redis: {
-      // host: process.env.REDISHOST,
-      // port: Number(process.env.REDISPORT),
-      // password: process.env.REDISPASSWORD,
-      // username: process.env.REDISUSER, // optional
       maxRetriesPerRequest: null, // unlimited retries
     },
   }
@@ -109,7 +102,6 @@ export function initBackfillProcessor(discordClient: Client) {
       let done = 0;
 
       // throttle one thread per second
-      const { default: PQueue } = await import("p-queue");
       const throttle = new PQueue({ interval: 1000, intervalCap: 1 });
 
       for (const thread of allThreads) {
