@@ -22,7 +22,7 @@ const clientsMap = new Map<string, ReplykeClient>();
 async function fetchProjectByGuildId(guildId: string) {
   try {
     const response = await axios.get(
-      process.env.SERVER_URL + "/discord-bot/find-integration-by-server-id",
+      process.env.SERVER_URL + "/internal/discord-bot/find-integration-by-server-id",
       {
         params: { serverId: guildId },
       }
