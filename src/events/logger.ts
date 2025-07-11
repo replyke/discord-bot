@@ -39,8 +39,6 @@ async function getReplykeClientForGuild(guildId: string) {
     return null;
   }
 
-  console.log({ projectId });
-
   const client = await ReplykeClient.init({
     projectId,
     apiKey: process.env.REPLYKE_SERVICE_API_KEY!,

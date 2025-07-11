@@ -5,14 +5,11 @@ import handleError from "../utils/handle-error";
 export default async (thread: ThreadChannel) => {
   if (thread.parent?.type !== ChannelType.GuildForum) return;
 
-  console.log("Valid guild forum");
   const replykeClient = await getReplykeClientForGuild(thread.guild.id);
   if (!replykeClient) {
     console.error("Issue initializing client for project");
     return;
   }
-
-  console.log("initializing or retrieved client for project");
 
   async function fetchStarterWithRetry(thread: ThreadChannel) {
     for (let i = 0; i < 5; i++) {
@@ -33,16 +30,12 @@ export default async (thread: ThreadChannel) => {
   let starterMsg: Message | null = null;
   try {
     starterMsg = await fetchStarterWithRetry(thread);
-
-    console.log("Found starter message", starterMsg);
   } catch (_) {
     /* no starter message (rare) */
   }
   const authorDiscord =
     starterMsg?.author ??
     (thread.ownerId ? await thread.client.users.fetch(thread.ownerId) : null);
-
-  console.log({ authorDiscord });
 
   if (!authorDiscord) {
     console.error("Issue getting thread author");
@@ -59,8 +52,6 @@ export default async (thread: ThreadChannel) => {
     });
 
     let replykeUser = user;
-
-    console.log({ replykeUser });
 
     if (replykeUser) {
       await replykeClient.entities.createEntity({

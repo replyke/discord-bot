@@ -30,6 +30,4 @@ export default async (
     },
     createdAt: new Date(), // the event timestamp
   };
-
-  console.log("[thread:reaction]", data);
 };
