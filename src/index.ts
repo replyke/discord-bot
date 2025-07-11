@@ -45,7 +45,7 @@ const client = new Client({
 // attach existing event handlers (e.g. thread/message listeners)
 loggerHandler(client);
 
-initBackfillProcessor(client);
+// initBackfillProcessor(client);
 
 client.once("ready", () => {
   console.log(`Discord bot logged in as ${client.user?.tag}`);

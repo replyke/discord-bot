@@ -4,6 +4,8 @@ import { Client, ChannelType, ThreadChannel, MessageType } from "discord.js";
 import { ReplykeClient } from "@replyke/node";
 import PQueue from "p-queue";
 import { getReplykeClientForGuild } from "../events/logger";
+import { fetchStarterMessageWithRetry } from "../helpers/fetchStarterMessageWithRetry";
+import { createThreadEntity } from "../helpers/createThreadEntity";
 
 /**
  * Payload for a backfill job
@@ -109,7 +111,7 @@ export function initBackfillProcessor(discordClient: Client) {
           console.log(`Job ${job.id}: processing thread ${thread.id}`);
 
           try {
-            await processThread(thread, replykeClient, discordClient);
+            await processThread(thread, replykeClient);
           } catch (err) {
             console.error(`Error processing ${thread.id}:`, err);
           }
@@ -140,55 +142,10 @@ export function initBackfillProcessor(discordClient: Client) {
  */
 async function processThread(
   thread: ThreadChannel,
-  replykeClient: ReplykeClient,
-  discordClient: Client
+  replykeClient: ReplykeClient
 ) {
-  // Fetch starter message (retry)
-  let starter = null;
-  for (let i = 0; i < 5; i++) {
-    try {
-      starter = await thread.fetchStarterMessage();
-      if (starter) break;
-    } catch {}
-    await new Promise((r) => setTimeout(r, 500));
-  }
-
-  // Map or create user
-  const dUser =
-    starter?.author ??
-    (thread.ownerId && (await discordClient.users.fetch(thread.ownerId))) ??
-    null;
-  if (!dUser) throw new Error(`No author for thread ${thread.id}`);
-
-  const rUser = await replykeClient.users.fetchUserByForeignId({
-    foreignId: dUser.id,
-    username: dUser.username,
-    avatar: dUser.displayAvatarURL({ size: 128 }),
-    metadata: { displayName: dUser.globalName },
-    createIfNotFound: true,
-  });
-
-  // Create entity
-  const entity = await replykeClient.entities.createEntity({
-    sourceId: `discord_channel_${thread.parentId}`,
-    foreignId: thread.id,
-    userId: rUser.id,
-    title: thread.name,
-    content: starter?.content,
-    attachments: starter?.attachments.map((a) => ({
-      id: a.id,
-      name: a.name,
-      url: a.url,
-      contentType: a.contentType,
-      size: a.size,
-    })),
-    metadata: {
-      starterMsgId: starter?.id,
-      guildId: thread.guild.id,
-      embeds: starter?.embeds.map((e) => e.data),
-    },
-  });
-  console.log(`Entity ${entity.id} created`);
+  const starter = await fetchStarterMessageWithRetry(thread);
+  const entity = await createThreadEntity(thread, starter, replykeClient);
 
   // Paginate messages
   let lastId: string | undefined;
