@@ -14,12 +14,14 @@
     "@replyke/node": "5.0.6",
     "axios": "^1.8.4",
     "bull": "^4.16.5",
+    "cors": "^2.8.5",
     "discord.js": "^14.18.0",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "p-queue": "^8.1.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^22.14.0",
     "ts-node": "^10.9.2",
