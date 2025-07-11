@@ -2,8 +2,8 @@
 import Bull from "bull";
 import { Client, ChannelType, ThreadChannel, MessageType } from "discord.js";
 import { ReplykeClient } from "@replyke/node";
-import { getReplykeClientForGuild } from "../events/logger";
 import PQueue from "p-queue";
+import { getReplykeClientForGuild } from "../events/logger";
 
 /**
  * Payload for a backfill job
