@@ -20,7 +20,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use("/api", router);
-console.log("→ Connecting to Redis URL:", process.env.REDIS_URL);
+console.log("→ Connecting to Redis URL:", process.env.REDIS_PUBLIC_URL);
 console.log("→ process.env.REDISHOST:", process.env.REDISHOST);
 console.log("→ process.env.REDISPORT:", process.env.REDISPORT);
 console.log("→ process.env.REDISPASSWORD:", process.env.REDISPASSWORD);

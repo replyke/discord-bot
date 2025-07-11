@@ -14,26 +14,34 @@ export interface BackfillJobData {
 }
 
 // producer: fail fast if Redis is down
-export const backfillProducer = new Bull<BackfillJobData>("backfill-forum", {
-  redis: {
-    host: process.env.REDISHOST,
-    port: Number(process.env.REDISPORT),
-    password: process.env.REDISPASSWORD,
-    username: process.env.REDISUSER, // optional
-    maxRetriesPerRequest: 1,
-  },
-});
+export const backfillProducer = new Bull<BackfillJobData>(
+  "backfill-forum",
+  process.env.REDIS_PUBLIC_URL!,
+  {
+    redis: {
+      // host: process.env.REDISHOST,
+      // port: Number(process.env.REDISPORT),
+      // password: process.env.REDISPASSWORD,
+      // username: process.env.REDISUSER, // optional
+      maxRetriesPerRequest: 1,
+    },
+  }
+);
 
 // worker: retry forever so jobs get picked up as soon as Redis recovers
-export const backfillWorker = new Bull<BackfillJobData>("backfill-forum", {
-  redis: {
-    host: process.env.REDISHOST,
-    port: Number(process.env.REDISPORT),
-    password: process.env.REDISPASSWORD,
-    username: process.env.REDISUSER, // optional
-    maxRetriesPerRequest: null, // unlimited retries
-  },
-});
+export const backfillWorker = new Bull<BackfillJobData>(
+  "backfill-forum",
+  process.env.REDIS_PUBLIC_URL!,
+  {
+    redis: {
+      // host: process.env.REDISHOST,
+      // port: Number(process.env.REDISPORT),
+      // password: process.env.REDISPASSWORD,
+      // username: process.env.REDISUSER, // optional
+      maxRetriesPerRequest: null, // unlimited retries
+    },
+  }
+);
 
 for (const queue of [backfillProducer, backfillWorker]) {
   queue.on("error", (err) => {
