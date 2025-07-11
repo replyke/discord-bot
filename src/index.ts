@@ -11,7 +11,6 @@ import { initBackfillProcessor } from "./services/backfill-service";
 import logRequest from "./middleware/logRequest";
 import corsOptions from "./middleware/cors-options";
 
-
 // --- HTTP Server Setup ---
 const app = express();
 
@@ -46,10 +45,11 @@ const client = new Client({
 // attach existing event handlers (e.g. thread/message listeners)
 loggerHandler(client);
 
+initBackfillProcessor(client);
+
 client.once("ready", () => {
   console.log(`Discord bot logged in as ${client.user?.tag}`);
   // start processing backfill jobs once bot is ready
-  initBackfillProcessor(client);
 });
 client.login(process.env.DISCORD_TOKEN).catch((err) => {
   console.error("Failed to login Discord bot:", err);

@@ -10,6 +10,8 @@ import { getReplykeClientForGuild } from "../events/logger";
 export interface BackfillJobData {
   guildId: string;
   forumChannelId: string;
+  /** populated if the job hit a fatal error */
+  error?: string;
 }
 
 /**
@@ -25,45 +27,65 @@ export const backfillQueue = new Bull<BackfillJobData>(
  */
 export function initBackfillProcessor(discordClient: Client) {
   backfillQueue.process(async (job) => {
-    const { guildId, forumChannelId } = job.data;
-    const replykeClient = await getReplykeClientForGuild(guildId);
-    if (!replykeClient) {
-      throw new Error(`No Replyke client for guild ${guildId}`);
-    }
+    try {
+      // ensure the Discord client is ready
+      if (!discordClient.isReady()) {
+        await new Promise<void>((resolve) =>
+          discordClient.once("ready", () => resolve())
+        );
+      }
 
-    // Fetch forum channel and list all threads
-    const forum = await discordClient.channels.fetch(forumChannelId);
-    if (!forum || forum.type !== ChannelType.GuildForum) {
-      throw new Error(`Channel ${forumChannelId} is not a GuildForum`);
-    }
+      const { guildId, forumChannelId } = job.data;
+      const replykeClient = await getReplykeClientForGuild(guildId);
+      if (!replykeClient) {
+        throw new Error(`No Replyke client for guild ${guildId}`);
+      }
 
-    const active = await forum.threads.fetchActive();
-    const archived = await forum.threads.fetchArchived({ type: "public" });
-    const allThreads = [
-      ...active.threads.values(),
-      ...archived.threads.values(),
-    ] as ThreadChannel[];
+      // Fetch forum channel and list all threads
+      const forum = await discordClient.channels.fetch(forumChannelId);
+      if (!forum || forum.type !== ChannelType.GuildForum) {
+        throw new Error(`Channel ${forumChannelId} is not a GuildForum`);
+      }
 
-    const total = allThreads.length;
-    let done = 0;
+      const active = await forum.threads.fetchActive();
+      const archived = await forum.threads.fetchArchived({ type: "public" });
+      const allThreads = [
+        ...active.threads.values(),
+        ...archived.threads.values(),
+      ] as ThreadChannel[];
 
-    // throttle one thread per second
-    const { default: PQueue } = await import("p-queue");
-    const throttle = new PQueue({ interval: 1000, intervalCap: 1 });
+      const total = allThreads.length;
+      let done = 0;
 
-    for (const thread of allThreads) {
-      throttle.add(async () => {
-        try {
-          await processThread(thread, replykeClient, discordClient);
-        } catch (err) {
-          console.error(`Error processing ${thread.id}:`, err);
-        }
-        done++;
-        job.progress(Math.floor((done / total) * 100));
+      // throttle one thread per second
+      const { default: PQueue } = await import("p-queue");
+      const throttle = new PQueue({ interval: 1000, intervalCap: 1 });
+
+      for (const thread of allThreads) {
+        throttle.add(async () => {
+          try {
+            await processThread(thread, replykeClient, discordClient);
+          } catch (err) {
+            console.error(`Error processing ${thread.id}:`, err);
+          }
+          done++;
+          job.progress(Math.floor((done / total) * 100));
+        });
+      }
+
+      await throttle.onIdle();
+      // final success bump
+      await job.progress(100);
+    } catch (err: any) {
+      console.error(`Backfill job ${job.id} failed:`, err);
+      // push the new `error` field directly onto the job data
+      await job.update({
+        ...job.data,
+        error: err.message,
       });
+      // mark as “done” so front-end sees 100%
+      await job.progress(100);
     }
-
-    await throttle.onIdle();
   });
 }
 

@@ -7,6 +7,14 @@ export default async (req: ExReq, res: ExRes) => {
     res.status(400).json({ error: "Missing guildId or forumChannelId" });
     return;
   }
-  const job = await backfillQueue.add({ guildId, forumChannelId });
-  res.json({ jobId: job.id });
+
+  try {
+    const job = await backfillQueue.add({ guildId, forumChannelId });
+    return res.json({ jobId: job.id });
+  } catch (err) {
+    console.error("Failed to enqueue backfill job:", err);
+    return res
+      .status(500)
+      .json({ error: "Could not schedule backfill (see server logs)" });
+  }
 };
