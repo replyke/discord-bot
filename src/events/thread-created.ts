@@ -43,15 +43,13 @@ export default async (thread: ThreadChannel) => {
   }
 
   try {
-    const user = await replykeClient.users.fetchUserByForeignId({
+    const replykeUser = await replykeClient.users.fetchUserByForeignId({
       foreignId: authorDiscord.id,
       username: authorDiscord.username,
       avatar: authorDiscord.displayAvatarURL({ size: 128 }),
       metadata: { displayName: authorDiscord.globalName },
       createIfNotFound: true,
     });
-
-    let replykeUser = user;
 
     if (replykeUser) {
       await replykeClient.entities.createEntity({

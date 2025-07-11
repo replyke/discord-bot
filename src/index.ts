@@ -1,9 +1,25 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import express from "express";
 import { Client, GatewayIntentBits, Partials } from "discord.js";
-import loggerHandler from "./events/logger";
 
+import router from "./router";
+import loggerHandler from "./events/logger";
+import { initBackfillProcessor } from "./services/backfill-service";
+
+// --- HTTP Server Setup ---
+const app = express();
+app.use(express.json());
+
+app.use("/api", router);
+
+const HTTP_PORT = parseInt(process.env.PORT || "3000", 10);
+app.listen(HTTP_PORT, () => {
+  console.log(`API server listening on port ${HTTP_PORT}`);
+});
+
+// --- Discord Bot Setup ---
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -19,10 +35,15 @@ const client = new Client({
   ],
 });
 
+// attach existing event handlers (e.g. thread/message listeners)
 loggerHandler(client);
 
 client.once("ready", () => {
-  console.log(`Logged in as ${client.user?.tag}`);
+  console.log(`Discord bot logged in as ${client.user?.tag}`);
+  // start processing backfill jobs once bot is ready
+  initBackfillProcessor(client);
 });
-
-client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.DISCORD_TOKEN).catch((err) => {
+  console.error("Failed to login Discord bot:", err);
+  process.exit(1);
+});
