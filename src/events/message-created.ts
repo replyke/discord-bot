@@ -35,13 +35,12 @@ export default async (message: Message) => {
   }
 
   try {
-    const { user: replykeUser } =
-      await replykeClient.users.fetchUserByForeignId({
-        foreignId: authorDiscord.id,
-        username: authorDiscord.username,
-        avatar: authorDiscord.displayAvatarURL({ size: 128 }),
-        metadata: { displayName: authorDiscord.globalName },
-      });
+    const replykeUser = await replykeClient.users.fetchUserByForeignId({
+      foreignId: authorDiscord.id,
+      username: authorDiscord.username,
+      avatar: authorDiscord.displayAvatarURL({ size: 128 }),
+      metadata: { displayName: authorDiscord.globalName },
+    });
 
     const entity = await replykeClient.entities.fetchEntityByForeignId({
       foreignId: message.channel.id,
