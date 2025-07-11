@@ -14,26 +14,26 @@ export interface BackfillJobData {
 }
 
 // producer: fail fast if Redis is down
-export const backfillProducer = new Bull<BackfillJobData>(
-  "backfill-forum",
-  process.env.REDIS_URL!,
-  {
-    redis: {
-      maxRetriesPerRequest: 1, // only retry once
-    },
-  }
-);
+export const backfillProducer = new Bull<BackfillJobData>("backfill-forum", {
+  redis: {
+    host: process.env.REDISHOST,
+    port: Number(process.env.REDISPORT),
+    password: process.env.REDISPASSWORD,
+    username: process.env.REDISUSER, // optional
+    maxRetriesPerRequest: 1,
+  },
+});
 
 // worker: retry forever so jobs get picked up as soon as Redis recovers
-export const backfillWorker = new Bull<BackfillJobData>(
-  "backfill-forum",
-  process.env.REDIS_URL!,
-  {
-    redis: {
-      maxRetriesPerRequest: null, // unlimited retries
-    },
-  }
-);
+export const backfillWorker = new Bull<BackfillJobData>("backfill-forum", {
+  redis: {
+    host: process.env.REDISHOST,
+    port: Number(process.env.REDISPORT),
+    password: process.env.REDISPASSWORD,
+    username: process.env.REDISUSER, // optional
+    maxRetriesPerRequest: null, // unlimited retries
+  },
+});
 
 for (const queue of [backfillProducer, backfillWorker]) {
   queue.on("error", (err) => {
@@ -64,7 +64,6 @@ for (const queue of [backfillProducer, backfillWorker]) {
 export function initBackfillProcessor(discordClient: Client) {
   backfillWorker.process(async (job) => {
     try {
-
       console.log(`Job ${job.id}: waiting for Discord ready…`);
 
       // ensure the Discord client is ready
@@ -86,7 +85,6 @@ export function initBackfillProcessor(discordClient: Client) {
         throw new Error(`Channel ${forumChannelId} is not a GuildForum`);
       }
       console.log(`Job ${job.id}: fetched forum:`, forum?.id, forum?.type);
-
 
       const active = await forum.threads.fetchActive();
       console.log(`Job ${job.id}: ${active.threads.size} active threads`);
