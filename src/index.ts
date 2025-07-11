@@ -7,7 +7,6 @@ import { Client, GatewayIntentBits, Partials } from "discord.js";
 
 import router from "./router";
 import loggerHandler from "./events/logger";
-import { initBackfillProcessor } from "./services/backfill-service";
 import logRequest from "./middleware/logRequest";
 import corsOptions from "./middleware/cors-options";
 
