@@ -36,6 +36,10 @@ export const backfillWorker = new Bull<BackfillJobData>(
     redis: {
       maxRetriesPerRequest: null, // unlimited retries
     },
+    defaultJobOptions: {
+      removeOnComplete: true,
+      removeOnFail: false,
+    },
   }
 );
 

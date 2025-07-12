@@ -9,7 +9,11 @@ import loggerHandler from "./events/logger";
 import logRequest from "./middleware/logRequest";
 import corsOptions from "./middleware/cors-options";
 import router from "./router";
-import { initBackfillProcessor } from "./services/backfill-service";
+import {
+  backfillProducer,
+  backfillWorker,
+  initBackfillProcessor,
+} from "./services/backfill-service";
 
 // --- HTTP Server Setup ---
 const app = express();
@@ -55,3 +59,14 @@ client.login(process.env.DISCORD_TOKEN).catch((err) => {
   console.error("Failed to login Discord bot:", err);
   process.exit(1);
 });
+
+const shutdown = async () => {
+  console.log("Shutting down…");
+  await backfillWorker.close(); // stop processing & close Redis
+  await backfillProducer.close(); // close Redis for producer
+  await client.destroy(); // disconnect Discord bot
+  process.exit(0);
+};
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
