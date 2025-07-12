@@ -11,7 +11,7 @@
   "author": "Replyke team",
   "license": "ISC",
   "dependencies": {
-    "@replyke/node": "5.0.6",
+    "@replyke/node": "5.0.7",
     "axios": "^1.8.4",
     "bull": "^4.16.5",
     "cors": "^2.8.5",

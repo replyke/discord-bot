@@ -1,6 +1,7 @@
 import { ChannelType, Message, MessageType } from "discord.js";
 import { getReplykeClientForGuild } from "./logger";
 import handleError from "../utils/handle-error";
+import { createMessageComment } from "../helpers/createMessageComment";
 
 export default async (message: Message) => {
   // 1. Ensure the channel is a thread
@@ -20,51 +21,16 @@ export default async (message: Message) => {
     return;
   }
 
-  /* ── Skip the starter post ── */
-  if (
-    message.id === message.channel.id || // method 1
-    message.type === MessageType.ThreadStarterMessage // method 2
-  ) {
-    return; // ignore – we already processed it (or will in ThreadCreate)
-  }
-
-  const authorDiscord = message.author;
-  if (!authorDiscord) {
-    console.error("Issue getting thread author");
-    return;
-  }
-
   try {
-    const replykeUser = await replykeClient.users.fetchUserByForeignId({
-      foreignId: authorDiscord.id,
-      username: authorDiscord.username,
-      avatar: authorDiscord.displayAvatarURL({ size: 128 }),
-      metadata: { displayName: authorDiscord.globalName },
-    });
-
     const entity = await replykeClient.entities.fetchEntityByForeignId({
       foreignId: message.channel.id,
     });
 
-    if (replykeUser && entity) {
-      await replykeClient.comments.createComment({
-        foreignId: message.id,
-        userId: replykeUser.id,
+    if (entity) {
+      await createMessageComment({
+        message,
+        replykeClient,
         entityId: entity.id,
-        content: message.content,
-        referencedCommentId: message.reference?.messageId,
-        attachments: message.attachments.map((att) => ({
-          id: att.id,
-          name: att.name,
-          url: att.url,
-          contentType: att.contentType,
-          size: att.size,
-        })),
-        metadata: {
-          guildId: message.guildId,
-          channelId: message.channelId,
-          embeds: message.embeds.map((e) => e.data),
-        },
       });
     }
   } catch (err) {

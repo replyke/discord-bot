@@ -40,5 +40,6 @@ export async function createThreadEntity(
       guildId: thread.guild.id,
       embeds: starter?.embeds.map((e) => e.data),
     },
+    createdAt: new Date(thread.createdAt ?? new Date()),
   });
 }
