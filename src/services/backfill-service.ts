@@ -26,8 +26,8 @@ export const backfillProducer = new Bull<BackfillJobData>(
       maxRetriesPerRequest: 1,
     },
     defaultJobOptions: {
-      removeOnComplete: true, // ✨ auto-cleanup for every job you enqueue
-      removeOnFail: false, // keep failures around if you need to debug
+      removeOnComplete: { age: 3600 }, // auto-cleanup completed jobs after 1 hour
+      removeOnFail: { age: 24 * 3600 }, // keep failures around for a day if you need to debug
     },
   }
 );
@@ -39,10 +39,6 @@ export const backfillWorker = new Bull<BackfillJobData>(
   {
     redis: {
       maxRetriesPerRequest: null, // unlimited retries
-    },
-    defaultJobOptions: {
-      removeOnComplete: true,
-      removeOnFail: false,
     },
   }
 );
