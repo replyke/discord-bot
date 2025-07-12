@@ -147,5 +147,9 @@ async function processThread(
 ) {
   const starter = await fetchStarterMessageWithRetry(thread);
   const entity = await createThreadEntity(thread, starter, replykeClient);
-  backfillMessages(thread, replykeClient, entity.id);
+  try {
+    await backfillMessages(thread, replykeClient, entity.id);
+  } catch (err) {
+    console.error(`Error backfilling messages for ${thread.id}:`, err);
+  }
 }
