@@ -48,5 +48,6 @@ export async function createMessageComment({
       referencedCommentId: message.reference?.messageId, // We pass it here and not directly as a main prop because Replyke's "referencedCommentId" expects a UUID, and this is an ID from Discord which isn't UUID
     },
     createdAt: new Date(message.createdAt ?? new Date()),
+    updatedAt: new Date(message.editedAt ?? new Date()),
   });
 }

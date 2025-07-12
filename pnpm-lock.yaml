@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@replyke/node':
-        specifier: 5.0.8
-        version: 5.0.8
+        specifier: 5.0.9
+        version: 5.0.9
       axios:
         specifier: ^1.8.4
         version: 1.10.0
@@ -129,8 +129,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@replyke/node@5.0.8':
-    resolution: {integrity: sha512-pKIBZRGEDZMeLmFP/SlYUxtcg4SQ67hKXboVM68rVEzwUvWRMtM8UZCOC0j2yPCeqcbsTTRKx/bPOj0/9jCSBA==}
+  '@replyke/node@5.0.9':
+    resolution: {integrity: sha512-0D6NirZpP1SbVgXKroGIDcr9emmUjBNb6YhhysLW4XGQv+C9NjlooGcnTr6ZLJFA4sUTMydnVXfKnrPtom+7+w==}
 
   '@sapphire/async-queue@1.5.5':
     resolution: {integrity: sha512-cvGzxbba6sav2zZkH8GPf2oGk9yYoD5qrNWdu9fRehifgnFZJMV+nuy2nON2roRO4yQQ+v7MK/Pktl/HgfsUXg==}
@@ -943,7 +943,7 @@ snapshots:
   '@msgpackr-extract/msgpackr-extract-win32-x64@3.0.3':
     optional: true
 
-  '@replyke/node@5.0.8':
+  '@replyke/node@5.0.9':
     dependencies:
       axios: 1.10.0
     transitivePeerDependencies:
