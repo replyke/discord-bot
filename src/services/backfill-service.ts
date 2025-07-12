@@ -72,8 +72,6 @@ for (const queue of [backfillProducer, backfillWorker]) {
 export function initBackfillProcessor(discordClient: Client) {
   backfillWorker.process(async (job) => {
     try {
-      console.log(`Job ${job.id}: waiting for Discord ready…`);
-
       // ensure the Discord client is ready
       if (!discordClient.isReady()) {
         await new Promise<void>((resolve) =>
@@ -92,13 +90,10 @@ export function initBackfillProcessor(discordClient: Client) {
       if (!forum || forum.type !== ChannelType.GuildForum) {
         throw new Error(`Channel ${forumChannelId} is not a GuildForum`);
       }
-      console.log(`Job ${job.id}: fetched forum:`, forum?.id, forum?.type);
 
       const active = await forum.threads.fetchActive();
-      console.log(`Job ${job.id}: ${active.threads.size} active threads`);
 
       const archived = await forum.threads.fetchArchived({ type: "public" });
-      console.log(`Job ${job.id}: ${archived.threads.size} archived threads`);
 
       const allThreads = [
         ...active.threads.values(),
@@ -113,14 +108,11 @@ export function initBackfillProcessor(discordClient: Client) {
 
       for (const thread of allThreads) {
         throttle.add(async () => {
-          console.log(`Job ${job.id}: processing thread ${thread.id}`);
-
           try {
             await processThread(thread, replykeClient);
           } catch (err) {
             console.error(`Error processing ${thread.id}:`, err);
           }
-          console.log(`Job ${job.id}: finished thread ${thread.id}`);
           done++;
           job.progress(Math.floor((done / total) * 100));
         });
