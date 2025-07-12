@@ -34,7 +34,6 @@ export async function createMessageComment({
     userId: replykeUser.id,
     entityId,
     content: message.content,
-    referencedCommentId: message.reference?.messageId,
     attachments: message.attachments.map((a) => ({
       id: a.id,
       name: a.name,
@@ -46,6 +45,7 @@ export async function createMessageComment({
       guildId: message.guildId,
       channelId: message.channelId,
       embeds: message.embeds.map((e) => e.data),
+      referencedCommentId: message.reference?.messageId, // We pass it here and not directly as a main prop because Replyke's "referencedCommentId" expects a UUID, and this is an ID from Discord which isn't UUID
     },
     createdAt: new Date(message.createdAt ?? new Date()),
   });
