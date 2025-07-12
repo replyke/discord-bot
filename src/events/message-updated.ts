@@ -48,7 +48,7 @@ export default async (
       // Otherwise, update the corresponding comment
       await replykeClient.comments.updateComment({
         commentId: comment.id,
-        update: newMessage.content || "",
+        content: newMessage.content || "",
       });
     }
   } catch (err) {
