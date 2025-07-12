@@ -47,5 +47,6 @@ export async function createMessageComment({
       channelId: message.channelId,
       embeds: message.embeds.map((e) => e.data),
     },
+    createdAt: new Date(message.createdAt ?? new Date()),
   });
 }
