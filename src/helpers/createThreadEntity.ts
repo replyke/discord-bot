@@ -10,6 +10,8 @@ export async function createThreadEntity(
     throw new Error(`No author for thread ${thread.id}`);
   }
 
+  const now = new Date();
+
   // map or create the user in Replyke
   const dUser =
     starter?.author ?? (await thread.client.users.fetch(thread.ownerId!));
@@ -40,6 +42,7 @@ export async function createThreadEntity(
       guildId: thread.guild.id,
       embeds: starter?.embeds.map((e) => e.data),
     },
-    createdAt: new Date(thread.createdAt ?? new Date()),
+    createdAt: new Date(thread.createdAt ?? now),
+    updatedAt: new Date(thread.lastMessage?.createdAt ?? now),
   });
 }
