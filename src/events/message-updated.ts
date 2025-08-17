@@ -45,6 +45,7 @@ export default async (
         return;
       }
 
+      
       // Otherwise, update the corresponding comment
       await replykeClient.comments.updateComment({
         commentId: comment.id,
