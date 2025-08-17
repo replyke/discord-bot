@@ -14,6 +14,7 @@ import {
   backfillWorker,
   initBackfillProcessor,
 } from "./services/backfill-service";
+import { closeDatabaseConnection } from "./utils/database";
 
 // --- HTTP Server Setup ---
 const app = express();
@@ -64,6 +65,7 @@ const shutdown = async () => {
   console.log("Shutting down…");
   await backfillWorker.close(); // stop processing & close Redis
   await backfillProducer.close(); // close Redis for producer
+  await closeDatabaseConnection(); // close PostgreSQL connection
   await client.destroy(); // disconnect Discord bot
   process.exit(0);
 };

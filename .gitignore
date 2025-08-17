@@ -2,3 +2,4 @@ node_modules
 recycle_bin
 .env
 runtime-logs.txt
+dist
