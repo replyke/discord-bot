@@ -1,0 +1,1 @@
+npx ts-node -e "require('dotenv').config();  import('./src/utils/migrate').then(m =>  m.runMigrations()).then(() => { console.log('Migration  completed'); process.exit(0); }).catch(err => {  console.error('Migration failed:', err); process.exit(1);  });"

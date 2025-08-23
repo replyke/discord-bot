@@ -75,10 +75,6 @@ for (const queue of [backfillProducer, backfillWorker]) {
  * Initializes the processor: must be called once with your Discord client
  */
 export function initBackfillProcessor(discordClient: Client) {
-  // Run migrations on startup
-  runMigrations().catch(err => {
-    console.error("Failed to run database migrations:", err);
-  });
 
   backfillWorker.process(async (job) => {
     const db = new BackfillDatabase();
