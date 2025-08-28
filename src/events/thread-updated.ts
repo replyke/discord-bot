@@ -12,16 +12,16 @@ export default async (_: ThreadChannel, newThread: ThreadChannel) => {
     return;
   }
 
-  const entity = await replykeClient.entities.fetchEntityByForeignId({
-    foreignId: newThread.id,
-  });
-
-  if (!entity) {
-    console.error("Issue finding associated Replyke entity to update");
-    return;
-  }
-
   try {
+    const entity = await replykeClient.entities.fetchEntityByForeignId({
+      foreignId: newThread.id,
+    });
+
+    if (!entity) {
+      console.error("Issue finding associated Replyke entity to update");
+      return;
+    }
+
     await replykeClient.entities.updateEntity({
       entityId: entity.id,
       title: newThread.name,
